@@ -4,11 +4,11 @@ FROM node:18-slim AS node-deps
 # Install Claude Code globally
 RUN npm install -g @anthropic-ai/claude-code
 
-# Multi-stage build: Go build stage
-FROM golang:1.23-alpine AS builder
+# Multi-stage build: Go build stage using Ubuntu for better compatibility
+FROM golang:1.23-bookworm AS builder
 
-# Install build dependencies including C++ runtime for Bun
-RUN apk add --no-cache git make curl bash unzip libstdc++ libgcc
+# Install build dependencies
+RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
@@ -18,6 +18,9 @@ WORKDIR /app
 
 # Copy source code
 COPY . .
+
+# Install dependencies first
+RUN cd chat && bun install
 
 # Build the application
 RUN make build
