@@ -225,7 +225,17 @@ func (s *Server) subscribeEvents(ctx context.Context, input *struct{}, send sse.
 		if event.Type == EventTypeScreenUpdate {
 			continue
 		}
-		if err := send.Data(event.Payload); err != nil {
+		var eventData any
+		switch event.Type {
+		case EventTypeMessageUpdate:
+			eventData = event.Payload.(MessageUpdateBody)
+		case EventTypeStatusChange:
+			eventData = event.Payload.(StatusChangeBody)
+		default:
+			s.logger.Warn("Unknown event type in initial events", "eventType", event.Type)
+			continue
+		}
+		if err := send.Data(eventData); err != nil {
 			s.logger.Error("Failed to send event", "subscriberId", subscriberId, "error", err)
 			return
 		}
@@ -240,7 +250,17 @@ func (s *Server) subscribeEvents(ctx context.Context, input *struct{}, send sse.
 			if event.Type == EventTypeScreenUpdate {
 				continue
 			}
-			if err := send.Data(event.Payload); err != nil {
+			var eventData any
+			switch event.Type {
+			case EventTypeMessageUpdate:
+				eventData = event.Payload.(MessageUpdateBody)
+			case EventTypeStatusChange:
+				eventData = event.Payload.(StatusChangeBody)
+			default:
+				s.logger.Warn("Unknown event type in stream", "eventType", event.Type)
+				continue
+			}
+			if err := send.Data(eventData); err != nil {
 				s.logger.Error("Failed to send event", "subscriberId", subscriberId, "error", err)
 				return
 			}
