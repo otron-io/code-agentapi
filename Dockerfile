@@ -38,6 +38,13 @@ WORKDIR /app
 # Copy the built binary from builder stage
 COPY --from=builder /app/out/agentapi /usr/local/bin/agentapi
 
+# Set environment variables for Claude configuration
+ENV CLAUDE_TIMEOUT=120
+ENV CLAUDE_WAIT_TIMEOUT=60
+ENV NODE_ENV=production
+ENV TERM=xterm-256color
+ENV FORCE_COLOR=1
+
 # Create non-root user
 RUN useradd -m -u 1001 agentapi
 USER agentapi
@@ -45,9 +52,9 @@ USER agentapi
 # Expose port
 EXPOSE 3284
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Health check with longer timeout
+HEALTHCHECK --interval=30s --timeout=15s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3284/status || exit 1
 
-# Command to run the application
-CMD ["agentapi", "server", "--", "claude"] 
+# Command to run the application with better terminal settings for Claude
+CMD ["agentapi", "server", "--term-width", "120", "--term-height", "40", "--", "claude", "--theme", "dark"] 

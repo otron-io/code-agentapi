@@ -11,14 +11,14 @@ services:
   dockerfile_path: Dockerfile
   http_port: 3284
   instance_count: 1
-  instance_size_slug: basic-xxs
+  instance_size_slug: basic-xs
   routes:
   - path: /
   health_check:
     http_path: /status
-    initial_delay_seconds: 30
-    period_seconds: 10
-    timeout_seconds: 5
+    initial_delay_seconds: 60
+    period_seconds: 15
+    timeout_seconds: 10
     success_threshold: 1
     failure_threshold: 3
   envs:
@@ -29,6 +29,10 @@ services:
   - key: ANTHROPIC_API_KEY
     scope: RUN_TIME
     type: SECRET
+  - key: CLAUDE_TIMEOUT
+    value: "120"
+  - key: CLAUDE_WAIT_TIMEOUT
+    value: "60"
 
 alerts:
 - rule: CPU_UTILIZATION
