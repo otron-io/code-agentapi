@@ -4,7 +4,6 @@ Control [Claude Code](https://github.com/anthropics/claude-code), [Goose](https:
 
 ![agentapi-chat](https://github.com/user-attachments/assets/57032c9f-4146-4b66-b219-09e38ab7690d)
 
-
 You can use AgentAPI:
 
 - to build a unified chat interface for coding agents
@@ -47,6 +46,25 @@ You can use AgentAPI:
    ```
 
 1. Try the chat web interface at http://localhost:3284/chat.
+
+## Deployment
+
+### DigitalOcean App Platform
+
+Deploy AgentAPI with Claude Code to DigitalOcean with automated deployments:
+
+```bash
+# Run the setup script
+./scripts/setup-deployment.sh
+```
+
+Or deploy manually using the provided configuration files:
+
+- `Dockerfile` - Container configuration
+- `.do/app.yaml` - DigitalOcean App Platform specification
+- `.github/workflows/deploy.yml` - Automated deployment workflow
+
+📖 **[Complete Deployment Guide](DEPLOYMENT.md)** - Step-by-step instructions for setting up automated deployments to DigitalOcean.
 
 ## CLI Commands
 

@@ -1,0 +1,65 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'coder' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t ${{ github.sha }} .
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Tag and push image to DigitalOcean Container Registry
+        run: |
+          docker tag ${{ github.sha }} registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/agentapi:${{ github.sha }}
+          docker tag ${{ github.sha }} registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/agentapi:latest
+          docker push registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/agentapi:${{ github.sha }}
+          docker push registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/agentapi:latest
+
+      - name: Update deployment file
+        run: |
+          TAG=${{ github.sha }} && sed -i 's|<IMAGE>|registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/agentapi:'${TAG}'|' $GITHUB_WORKSPACE/.do/deploy.yaml
+
+      - name: Deploy to DigitalOcean App Platform
+        run: |
+          doctl app update ${{ secrets.APP_ID }} --spec $GITHUB_WORKSPACE/.do/app.yaml
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 60
+          doctl app get ${{ secrets.APP_ID }}
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Deployment Success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "🚀 Deployment to DigitalOcean successful!"
+          echo "AgentAPI Claude server is now running at: ${{ secrets.APP_URL }}"
+
+      - name: Deployment Failed
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deployment to DigitalOcean failed!"
+          exit 1
