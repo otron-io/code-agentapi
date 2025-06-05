@@ -57,4 +57,4 @@ HEALTHCHECK --interval=30s --timeout=15s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3284/status || exit 1
 
 # Command to run the application with better terminal settings for Claude
-CMD ["agentapi", "server", "--term-width", "120", "--term-height", "40", "--", "claude", "--theme", "dark"] 
+CMD ["agentapi", "server", "--term-width", "120", "--term-height", "40", "--", "claude"] 
