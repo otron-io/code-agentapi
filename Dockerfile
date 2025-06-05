@@ -7,8 +7,8 @@ RUN npm install -g @anthropic-ai/claude-code
 # Multi-stage build: Go build stage
 FROM golang:1.23-alpine AS builder
 
-# Install build dependencies including bash for Bun installation
-RUN apk add --no-cache git make curl bash unzip
+# Install build dependencies including C++ runtime for Bun
+RUN apk add --no-cache git make curl bash unzip libstdc++ libgcc
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
