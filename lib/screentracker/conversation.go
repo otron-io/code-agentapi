@@ -271,7 +271,7 @@ func (c *Conversation) writeMessageWithConfirmation(ctx context.Context, message
 	}
 	// wait for the screen to stabilize after the message is written
 	if err := util.WaitFor(ctx, util.WaitTimeout{
-		Timeout:     15 * time.Second,
+		Timeout:     60 * time.Second,
 		MinInterval: 50 * time.Millisecond,
 		InitialWait: true,
 	}, func() (bool, error) {
@@ -290,7 +290,7 @@ func (c *Conversation) writeMessageWithConfirmation(ctx context.Context, message
 	screenBeforeCarriageReturn := c.cfg.AgentIO.ReadScreen()
 	lastCarriageReturnTime := time.Time{}
 	if err := util.WaitFor(ctx, util.WaitTimeout{
-		Timeout:     15 * time.Second,
+		Timeout:     60 * time.Second,
 		MinInterval: 25 * time.Millisecond,
 	}, func() (bool, error) {
 		// we don't want to spam additional carriage returns because the agent may process them
